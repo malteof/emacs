@@ -18,6 +18,7 @@
 (require 'org)
 (require 'uniquify)
 (require 'autopair)
+(require 'magit)
 
 ; GnuPG path
 (require 'epa-file)
