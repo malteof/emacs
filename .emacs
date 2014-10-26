@@ -51,7 +51,6 @@
       visible-bell t)
 
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; minor functionality tweaks
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -59,10 +58,11 @@
 ;; always prefer utf-8
 (prefer-coding-system 'utf-8)
 
-;; automatically pair (), []
+;; automatically pair (), [], ""
 ;; TODO: why is it not pairing {}?
+;; TODO: use electric-pair-mode instead in 24.4
 (require 'autopair)
-(autopair-global-mode) ; use electric-pair-mode instead in 24.4
+(autopair-global-mode) 
 
 ;; save place in file when restarting Emacs
 (require 'saveplace)
@@ -132,6 +132,7 @@
     (epa-file-enable)
 
 (setq epg-gpg-program "C:/Program Files (x86)/GNU/GnuPG/gpg2.exe")
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; god mode setup
