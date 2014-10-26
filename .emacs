@@ -1,6 +1,5 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; author:   Malte Obbel Forsberg
-;; date:     26-10-2014
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -99,6 +98,9 @@
 (global-set-key (kbd "M-S-C-<right>") 'enlarge-window-horizontally)
 (global-set-key (kbd "M-S-C-<down>") 'shrink-window)
 (global-set-key (kbd "M-S-C-<up>") 'enlarge-window)
+
+;; use dired-x for extended functionality
+(require 'dired-x)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
