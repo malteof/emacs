@@ -1,9 +1,14 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; author:   Malte Obbel Forsberg
+;; date:     26-10-2014
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; initial setup
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (add-to-list 'load-path "~/.emacs.d/")
 (require 'package)
-
-(prefer-coding-system 'utf-8)
 
 ;;(add-to-list 'package-archives
 ;;             '("marmalade" .
@@ -13,37 +18,94 @@
 
 (package-initialize)
 
-(require 'saveplace)
-(require 'ispell)
-(require 'org)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; look and feel
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; set theme
+(load-theme 'zenburn t)
+
+;; don't display tool, scroll or menu bars
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+(menu-bar-mode -1)
+
+;; more intelligent buffer names in case of duplicates
 (require 'uniquify)
+
+;; show that pesky trailing whitespace
+(setq-default show-trailing-whitespace t)
+
+;; display column as well as row number
+(setq column-number-mode t)
+
+;; mark the whole active line
+;;(global-hl-line-mode 1)
+
+;; always display matching parentheses
+(show-paren-mode t)
+
+(setq echo-keystrokes 0.1
+      use-dialog-box nil
+      visible-bell t)
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; minor functionality tweaks
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; always prefer utf-8
+(prefer-coding-system 'utf-8)
+
+;; automatically pair (), []
+;; TODO: why is it not pairing {}?
 (require 'autopair)
-(require 'magit)
-
-; GnuPG path
-(require 'epa-file)
-    (epa-file-enable)
-
-(setq epg-gpg-program "C:/Program Files (x86)/GNU/GnuPG/gpg2.exe")
-
-;; enable god-mode with ESC
-;; g = M, G = C-M, C not needed
-;; 12f = M-12 C-f
-;; gf.. = M-f M-f M-f (. = repetition)
-;; uco = C-u C-c C-o
-(require 'god-mode)
-
-(global-set-key (kbd "<escape>") 'god-mode-all)
-(defun my-update-cursor ()
-  (setq cursor-type (if (or god-local-mode buffer-read-only)
-                        'bar
-                      'box)))
-
-(add-hook 'god-mode-enabled-hook 'my-update-cursor)
-(add-hook 'god-mode-disabled-hook 'my-update-cursor)
-
 (autopair-global-mode) ; use electric-pair-mode instead in 24.4
 
+;; save place in file when restarting Emacs
+(require 'saveplace)
+(setq-default save-place t)
+(setq save-place-file "~/.emacs.d/saved-places")
+
+;; tab-with is 2 spaces, no tabs
+(setq tab-width 2
+      indent-tabs-mode nil)
+
+;; yes or no questions can be answered by y/n instead
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+;; save state of buffers every time Emacs quits
+(desktop-save-mode 1)
+
+;; move between windows using C-left, right etc
+(when (fboundp 'windmove-default-keybindings)
+  (windmove-default-keybindings))
+
+;; easy switching of buffer windows
+(require 'buffer-move)
+(global-set-key (kbd "<C-S-up>")     'buf-move-up)
+(global-set-key (kbd "<C-S-down>")   'buf-move-down)
+(global-set-key (kbd "<C-S-left>")   'buf-move-left)
+(global-set-key (kbd "<C-S-right>")  'buf-move-right)
+
+;; winner-mode switches to previous window state (e.g. undo splitting windows)
+;; C-c left / right
+(when (fboundp 'winner-mode)
+  (winner-mode 1))
+
+(global-set-key (kbd "M-S-C-<left>") 'shrink-window-horizontally)
+(global-set-key (kbd "M-S-C-<right>") 'enlarge-window-horizontally)
+(global-set-key (kbd "M-S-C-<down>") 'shrink-window)
+(global-set-key (kbd "M-S-C-<up>") 'enlarge-window)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; helper functions
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; functions to indent, remove tabs and otherwise clean up the buffer
 (defun untabify-buffer ()
   (interactive)
   (untabify (point-min) (point-max)))
@@ -61,140 +123,110 @@
 
 (global-set-key (kbd "C-c n") 'cleanup-buffer)
 
-(setq-default show-trailing-whitespace t)
 
-;;(require 'tabbar)
-;;(tabbar-mode t)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; GnuPG setup
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; move between windows using C-left, right etc
-;; doesn't play nice with org-mode though
-;;(when (fboundp 'windmove-default-keybindings)
-;;  (windmove-default-keybindings))
+(require 'epa-file)
+    (epa-file-enable)
 
-(setq column-number-mode t)
+(setq epg-gpg-program "C:/Program Files (x86)/GNU/GnuPG/gpg2.exe")
 
-(setq tab-width 2
-      indent-tabs-mode nil)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; god mode setup
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defalias 'yes-or-no-p 'y-or-n-p)
+;; enable god-mode with ESC
+;; g = M, G = C-M, C not needed
+;; 12f = M-12 C-f
+;; gf.. = M-f M-f M-f (. = repetition)
+;; uco = C-u C-c C-o
 
-(load-theme 'zenburn t)
+(require 'god-mode)
 
-;; winner-mode => C-c left / right
-(when (fboundp 'winner-mode)
-  (winner-mode 1))
+(global-set-key (kbd "<escape>") 'god-mode-all)
+(defun my-update-cursor ()
+  (setq cursor-type (if (or god-local-mode buffer-read-only)
+                        'bar
+                      'box)))
 
-(setq echo-keystrokes 0.1
-      use-dialog-box nil
-      visible-bell t)
-
-;;(global-hl-line-mode 1)
-
-(show-paren-mode t)
-
-;; ;For work
-;; (setq url-proxy-services
-;;       '(("no_proxy" . "^\\(localhost\\|10.*\\)")
-;;         ("http" . "10.243.190.100:8080")
-;;         ("https" . "10.243.190.100:8080")))
+(add-hook 'god-mode-enabled-hook 'my-update-cursor)
+(add-hook 'god-mode-disabled-hook 'my-update-cursor)
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Helm configuration
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (require 'helm-config)
 
 (global-set-key (kbd "C-c h") 'helm-command-prefix)
 (global-unset-key (kbd "C-x c"))
-
 (helm-mode 1)
-
 (global-set-key (kbd "M-x") 'helm-M-x)
 
-(define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) ; rebind tab to do persistent action
-(define-key helm-map (kbd "C-i") 'helm-execute-persistent-action) ; make TAB works in terminal
-(define-key helm-map (kbd "C-z")  'helm-select-action) ; list actions using C-z
+;; rebind tab to do persistent action
+(define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action) 
+
+;; make TAB works in terminal
+(define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
+
+;; list actions using C-z
+(define-key helm-map (kbd "C-z")  'helm-select-action)
 
 (global-set-key (kbd "M-y") 'helm-show-kill-ring)
-
 (global-set-key (kbd "C-x b") 'helm-mini)
-
 (global-set-key (kbd "C-x C-f") 'helm-find-files)
-
 (global-set-key (kbd "C-h SPC") 'helm-all-mark-rings)
-
 (global-set-key (kbd "C-c h g") 'helm-google-suggest)
 
+;; nicer buffer search
+(global-set-key (kbd "M-i") 'helm-occur)
+
+;; helm eshell functionality
 (require 'helm-eshell)
 
 (add-hook 'eshell-mode-hook
           #'(lambda ()
               (define-key eshell-mode-map (kbd "M-l")  'helm-eshell-history)))
 
-;; Helm-swoop
-;;(require 'helm-swoop)
 
-(global-set-key (kbd "M-i") 'helm-occur)
-;; (global-set-key (kbd "M-I") 'helm-swoop-back-to-last-point)
-;; (global-set-key (kbd "C-c M-i") 'helm-multi-swoop)
-;; (global-set-key (kbd "C-x M-i") 'helm-multi-swoop-all)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Org-mode configuration
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; ;; When doing isearch, hand the word over to helm-swoop
-;; (define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
-;; ;; From helm-swoop to helm-multi-swoop-all
-;; (define-key helm-swoop-map (kbd "M-i") 'helm-multi-swoop-all-from-helm-swoop)
-;; ;; When doing evil-search, hand the word over to helm-swoop
-;; ;; (define-key evil-motion-state-map (kbd "M-i") 'helm-swoop-from-evil-search)
-
-;; ;; Save buffer when helm-multi-swoop-edit complete
-;; (setq helm-multi-swoop-edit-save t)
-
-;; ;; If this value is t, split window inside the current window
-;; (setq helm-swoop-split-with-multiple-windows nil)
-
-;; ;; Split direcion. 'split-window-vertically or 'split-window-horizontally
-;; (setq helm-swoop-split-direction 'split-window-vertically)
-
-;; ;; If nil, you can slightly boost invoke speed in exchange for text color
-;; (setq helm-swoop-speed-or-color 1)
-
-;; ;; Optional face for each line number
-;; ;; Face name is `helm-swoop-line-number-face`
-;; (setq helm-swoop-use-line-number-face t)
-
-
-                                        ; Save state of buffers everytime Emacs quits
-(desktop-save-mode 1)
-
-                                        ; remove tool bar
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
-(menu-bar-mode -1)
-
-;; -- save place in file
-(setq-default save-place t)
+(require 'org)
 
 ;; Load org-mode when editing file ending with .org
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
+(define-key global-map "\C-cc" 'org-capture)
+
+;; insert timestamp when a TODO was marked as DONE
 (setq org-log-done t)
 
 (setq org-agenda-include-diary t)
 
+;; remember org clock between sessions
 (setq org-clock-persist 'history)
 (org-clock-persistence-insinuate)
 
+;; C-c a t only shows non-scheduled items
+(setq org-agenda-show-log t
+      org-agenda-todo-ignore-scheduled t
+      org-agenda-todo-ignore-deadlines t)
 
-;; If we're in Windows, add aspell to path
-(when (eq system-type 'windows-nt)
-  (add-to-list 'exec-path "C:/Program Files (x86)/Aspell/bin/")
-  )
+;; capture templates for todos, journal entries and "word of the day"
+(setq org-capture-templates
+      '(("t" "Todo" entry (file+headline "~/GTD/gtd.org" "Tasks")
+         "* TODO %^{Brief Description} %^g\n%?\nAdded: %U")
+        ("j" "Journal" entry (file+datetree "~/GTD/journal.org")
+         "* %?\nEntered on %U\n  %i\n  %a")
+        ("w" "WOTD" entry (file "~/GTD/wotd.org")
+         "* %^{German word} -- %^{English word} %^g\nEntered on %u %?")))
 
-(setq ispell-program-name "aspell.exe")
-
-(global-set-key (kbd "<f8>") 'ispell-word)
-(global-set-key (kbd "C-<f8>") 'flyspell-mode)
-
-;; Org-mode
-
+;; activate spell checking as well as writegood-mode when in org-mode
 ;; (add-hook 'org-mode-hook
 ;;           (lambda ()
 ;;             (flyspell-mode)))
@@ -202,8 +234,45 @@
 ;;           (lambda ()
 ;;             (writegood-mode)))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ispell configuration
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(require 'ispell)
+
+;; If we're in Windows, add aspell to path
+(when (eq system-type 'windows-nt)
+  (add-to-list 'exec-path "C:/Program Files (x86)/Aspell/bin/")
+  )
+
+(setq ispell-program-name "aspell")
+
+(global-set-key (kbd "<f8>") 'ispell-word)
+(global-set-key (kbd "C-<f8>") 'flyspell-mode)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; magit configuration
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(require 'magit)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; misc
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; writegood grading
 (global-set-key "\C-c\C-gg" 'writegood-grade-level)
 (global-set-key "\C-c\C-ge" 'writegood-reading-ease)
+
+
+;; For work
+;; (setq url-proxy-services
+;;       '(("no_proxy" . "^\\(localhost\\|10.*\\)")
+;;         ("http" . "10.243.190.100:8080")
+;;         ("https" . "10.243.190.100:8080")))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -221,25 +290,3 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
-
-
-(setq org-agenda-show-log t
-      org-agenda-todo-ignore-scheduled t
-      org-agenda-todo-ignore-deadlines t)
-
-(setq org-agenda-include-diary t)
-
-(define-key global-map "\C-cc" 'org-capture)
-
-(setq org-capture-templates
-      '(("t" "Todo" entry (file+headline "~/GTD/gtd.org" "Tasks")
-         "* TODO %^{Brief Description} %^g\n%?\nAdded: %U")
-        ("j" "Journal" entry (file+datetree "~/GTD/journal.org")
-         "* %?\nEntered on %U\n  %i\n  %a")
-        ("w" "WOTD" entry (file "~/GTD/wotd.org")
-         "* %^{German word} -- %^{English word} %^g\nEntered on %u %?")))
-
-(global-set-key (kbd "S-C-<left>") 'shrink-window-horizontally)
-(global-set-key (kbd "S-C-<right>") 'enlarge-window-horizontally)
-(global-set-key (kbd "S-C-<down>") 'shrink-window)
-(global-set-key (kbd "S-C-<up>") 'enlarge-window)
