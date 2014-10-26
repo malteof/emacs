@@ -13,7 +13,7 @@
 ;;             '("marmalade" .
 ;;               "https://marmalade-repo.org/packages/"))
 (add-to-list 'package-archives
-             '("melpa" . "http://melpa.org/packages/") t)
+             '("melpa" . "http://stable.melpa.org/packages/") t)
 
 (package-initialize)
 
@@ -161,6 +161,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Helm configuration
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; mostly from http://tuhdo.github.io/helm-intro.html
 
 (require 'helm-config)
 
@@ -193,6 +194,9 @@
 (add-hook 'eshell-mode-hook
           #'(lambda ()
               (define-key eshell-mode-map (kbd "M-l")  'helm-eshell-history)))
+
+;; C-c h l
+(setq helm-locate-command "locate %s -e -A --regex %s") ;doesn't seem to work on windows with cygwin very well
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -262,6 +266,82 @@
 (require 'magit)
 ;; ugly solution because windows, github and ssh don't play well together
 (setenv "GIT_ASKPASS" "git-gui--askpass")
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; haskell-mode configuration
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; mostly from https://github.com/serras/emacs-haskell-tutorial/blob/master/tutorial.md
+;; can use 'M-x haskell-mode-stylish-buffer' for nice formatting
+;; some commands require 'happy' tool (?), install with cabal install happy
+
+;; use haskell-indentation
+(add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
+
+;; go directly to the import section
+(eval-after-load 'haskell-mode
+          '(define-key haskell-mode-map [f9] 'haskell-navigate-imports))
+
+;; to be able to jump to the definition of any field
+(define-key haskell-mode-map (kbd "M-.") 'haskell-mode-jump-to-def-or-tag) ; ghci, otherwise fall back to TAGS file
+;;(define-key haskell-mode-map (kbd "M-.") 'haskell-mode-tag-find) ; TAGS file
+;;(define-key haskell-mode-map (kbd "M-.") 'haskell-mode-jump-to-def) ; ghci
+
+
+;; 'cabal install hasktags' needed for this to work
+(custom-set-variables
+  '(haskell-tags-on-save t))
+
+;; set some custom haskell process options
+(custom-set-variables
+  '(haskell-process-suggest-remove-import-lines t)
+  '(haskell-process-auto-import-loaded-modules t)
+  '(haskell-process-log t))
+
+;; set key shortcuts for interactive haskell in cabal and haskell
+(eval-after-load 'haskell-mode '(progn
+  (define-key haskell-mode-map (kbd "C-c C-l") 'haskell-process-load-or-reload)
+  (define-key haskell-mode-map (kbd "C-c C-z") 'haskell-interactive-switch)
+  (define-key haskell-mode-map (kbd "C-c C-n C-t") 'haskell-process-do-type)
+  (define-key haskell-mode-map (kbd "C-c C-n C-i") 'haskell-process-do-info)
+  (define-key haskell-mode-map (kbd "C-c C-n C-c") 'haskell-process-cabal-build)
+  (define-key haskell-mode-map (kbd "C-c C-n c") 'haskell-process-cabal)
+  (define-key haskell-mode-map (kbd "SPC") 'haskell-mode-contextual-space)))
+
+(eval-after-load 'haskell-cabal '(progn
+  (define-key haskell-cabal-mode-map (kbd "C-c C-z") 'haskell-interactive-switch)
+  (define-key haskell-cabal-mode-map (kbd "C-c C-k") 'haskell-interactive-mode-clear)
+  (define-key haskell-cabal-mode-map (kbd "C-c C-c") 'haskell-process-cabal-build)
+  (define-key haskell-cabal-mode-map (kbd "C-c c") 'haskell-process-cabal)))
+
+;; compile and see output
+(eval-after-load 'haskell-mode
+  '(define-key haskell-mode-map (kbd "C-c C-o") 'haskell-compile))
+(eval-after-load 'haskell-cabal
+  '(define-key haskell-cabal-mode-map (kbd "C-c C-o") 'haskell-compile))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ghc-mod configuration
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; 'cabal install ghc-mod' first
+;; 'cabal install hlint' enables C-c C-c to select hlint instead of ghc
+;; 'cabal install hoogle' and 'hoogle data' enables C-c C-h
+
+(autoload 'ghc-init "ghc" nil t)
+(autoload 'ghc-debug "ghc" nil t)
+(add-hook 'haskell-mode-hook (lambda () (ghc-init)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; company mode
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(require 'company)
+(add-hook 'after-init-hook 'global-company-mode)
+
+;; add ghc (Haskell) backend
+(add-to-list 'company-backends 'company-ghc)
+;(custom-set-variables '(company-ghc-show-info t))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
