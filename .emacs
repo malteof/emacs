@@ -102,6 +102,16 @@
 ;; use dired-x for extended functionality
 (require 'dired-x)
 
+;; define backup behaviour
+(setq
+   backup-by-copying t      ; don't clobber symlinks
+   backup-directory-alist
+    '(("." . "~/.emacs.d/backup_saves"))    ; don't litter my fs tree
+   delete-old-versions t
+   kept-new-versions 6
+   kept-old-versions 2
+   version-control t)       ; use versioned backups
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; helper functions
@@ -319,6 +329,15 @@
   '(define-key haskell-mode-map (kbd "C-c C-o") 'haskell-compile))
 (eval-after-load 'haskell-cabal
   '(define-key haskell-cabal-mode-map (kbd "C-c C-o") 'haskell-compile))
+
+;; use cabal REPL instead of ghc
+;;(custom-set-variables '(haskell-process-type 'cabal-repl))
+
+;; custom haskell-mode settings
+(custom-set-variables
+ '(haskell-process-log t)
+ '(haskell-process-type (quote cabal-repl)) ;; mui importante
+ '(inferior-haskell-wait-and-jump t))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ghc-mod configuration
