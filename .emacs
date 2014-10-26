@@ -258,6 +258,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (require 'magit)
+;; ugly solution because windows, github and ssh don't play well together
+(setenv "GIT_ASKPASS" "git-gui--askpass")
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
